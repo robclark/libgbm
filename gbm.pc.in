@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: gbm
+Description: gbm library
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lgbm
+Cflags: -I${includedir}/gbm

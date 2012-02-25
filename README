@@ -1,0 +1,37 @@
+This is the gbm frontend used by (for example) weston compositor to
+load the GLES stack, and retrieve the backing buffer objects behind
+an eglImage (created with EGL_WAYLAND_BUFFER_WL), etc.
+
+The frontend is really just a backend loader and shim.  The backend
+library must be provided by the GLES implementation.
+
+To get wayland up and running on your GLES stack:
+ 1) implement gbm backend
+ 2) implement EGL_WL_bind_wayland_display extension (including
+    EGL_WAYLAND_BUFFER_WL eglCreateImageKHR target
+    for compositor-drm it looks like we also need
+    EGL_KHR_surfaceless_gles2 extension..
+----
+<robclark> hmm, I don't suppose there is any extension description for EGL_KHR_surfaceless_gles2 ?
+<pq> robclark, it should simply mean you can eglMakeCurrent with NULL surface, but a real context.
+----
+ 3) implement wayland-egl (must provide wayland-egl.pc)
+ 4) ???
+ 5) PROFIT!!
+
+need this in your eglext.h:
+
+-------------------
+#ifndef EGL_WL_bind_wayland_display
+#define EGL_WL_bind_wayland_display 1
+
+#define EGL_WAYLAND_BUFFER_WL			0x31D5 /* eglCreateImageKHR target */
+struct wl_display;
+#ifdef EGL_EGLEXT_PROTOTYPES
+EGLAPI EGLBoolean EGLAPIENTRY eglBindWaylandDisplayWL(EGLDisplay dpy, struct wl_display *display);
+EGLAPI EGLBoolean EGLAPIENTRY eglUnbindWaylandDisplayWL(EGLDisplay dpy, struct wl_display *display);
+#endif
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+typedef EGLBoolean (EGLAPIENTRYP PFNEGLUNBINDWAYLANDDISPLAYWL) (EGLDisplay dpy, struct wl_display *display);
+#endif
+-------------------

@@ -38,6 +38,16 @@
 #define GBM_EXPORT
 #endif
 
+/**
+ * \file gbmint.h
+ * \brief Internal implementation details of gbm
+ */
+
+/**
+ * The device used for the memory allocation.
+ *
+ * The members of this structure should be not accessed directly
+ */
 struct gbm_device {
    /* Hack to make a gbm_device detectable by its first element. */
    struct gbm_device *(*dummy)(int);
@@ -63,11 +73,17 @@ struct gbm_device {
    void (*bo_destroy)(struct gbm_bo *bo);
 };
 
+/**
+ * The allocated buffer object.
+ *
+ * The members in this structure should not be accessed directly.
+ */
 struct gbm_bo {
    struct gbm_device *gbm;
    uint32_t width;
    uint32_t height;
    uint32_t pitch;
+   uint32_t format;
    union gbm_bo_handle  handle;
 };
 
